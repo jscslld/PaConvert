@@ -715,18 +715,17 @@ class TorchTensorMatcher(BaseMatcher):
 class TensorNormal_Matcher(BaseMatcher):
     def generate_code(self, kwargs):
         
-        if "mean" not in kwargs:
-            return None
-
-        new_kwargs = {"mean": kwargs["mean"],
-            "std": kwargs["std"]
-        }
+        new_kwargs = {}
+        if "mean" in kwargs:
+            new_kwargs["mean"] = kwargs["mean"]
+        if "std" in kwargs:
+            new_kwargs["std"] = kwargs["std"]
         
         API_TEMPLATE = textwrap.dedent(
             '''
             {} = {}
             {} = {}.shape
-            {} = {}({}, shape={})
+            {} = {}({} shape={})
             {}.stop_gradient = {}
             {}.astype(str({})[7:])
             '''
@@ -739,7 +738,7 @@ class TensorNormal_Matcher(BaseMatcher):
         # handle requires_grad, dtype, device, pin_memory
         code = API_TEMPLATE.format(var, self.paddleClass,
                                    shape, var,
-                                   out, self.get_paddle_api(), self.kwargs_to_str(new_kwargs), shape,
+                                   out, self.get_paddle_api(), self.kwargs_to_str(new_kwargs) + ',' if len(new_kwargs) > 0 else '', shape,
                                    out, var + '.stop_gradient', 
                                    out, var + '.dtype')
         
