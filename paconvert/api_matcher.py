@@ -377,9 +377,11 @@ class EqualMatcher(BaseMatcher):
 class TensorMatcher(BaseMatcher):
     def get_paddle_nodes(self, args, kwargs):
 
-        shape = []
-        for node in args:
-            shape.append(node.value)   
+        if len(args) == 1 and not isinstance(args[0], ast.Constant):
+            shape_list = self.parse_args(args)[0]
+        else:
+            shape_list = self.parse_args(args)
+            shape_list = str(shape_list).replace('\'', '') 
 
         data_type = ''
         if "torch.IntTensor" == self.torch_api:
@@ -397,7 +399,7 @@ class TensorMatcher(BaseMatcher):
             '''
         )
 
-        code = API_TEMPLATE.format("paddle.empty", shape, data_type)
+        code = API_TEMPLATE.format("paddle.empty", shape_list, data_type)
         node = ast.parse(code.strip('\n')).body
         return node
 
@@ -556,8 +558,9 @@ class TensorNew_Matcher(BaseMatcher):
     def get_paddle_class_nodes(self, func, args, kwargs):
         self.parse_func(func)
 
-        if len(args) == 1 and not isinstance(args[0], ast.Constant):
+        if len(args) == 1 :
             shape_list = self.parse_args(args)[0]
+            shape_list = shape_list.strip('*')
         else:
             shape_list = self.parse_args(args)
 
@@ -712,6 +715,9 @@ class TorchTensorMatcher(BaseMatcher):
 class TensorNormal_Matcher(BaseMatcher):
     def generate_code(self, kwargs):
         
+        if "mean" not in kwargs:
+            return None
+
         new_kwargs = {"mean": kwargs["mean"],
             "std": kwargs["std"]
         }
@@ -1244,6 +1250,7 @@ class TensorExpandMatcher(BaseMatcher):
 
         code = '{}.expand({})'.format(self.paddleClass, self.kwargs_to_str(kwargs))
         return ast.parse(code).body
+        # return None
 
 
 class TensorSoftmaxMatcher(BaseMatcher):

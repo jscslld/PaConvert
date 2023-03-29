@@ -187,9 +187,6 @@ class BaseMatcher(object):
             k = args_list[i]
             v = astor.to_source(node).strip('\n')
             # have comma indicates a tuple
-            if ',' in v and v.startswith('('):
-                v = v.replace('(', '[')
-                v = v.replace(')', ']')
             new_kwargs[k] = v
         
         for node in kwargs:
@@ -202,9 +199,6 @@ class BaseMatcher(object):
             #if k not in args_list:
             #    return 'NonTorchClass'
             v = astor.to_source(node.value).strip('\n')
-            if ',' in v and v.startswith('('):
-                v = v.replace('(', '[')
-                v = v.replace(')', ']')
             new_kwargs[k] = v
 
         return new_kwargs
@@ -213,9 +207,6 @@ class BaseMatcher(object):
         new_args = []
         for node in args:
             ele = astor.to_source(node).strip('\n')
-            if ',' in ele and ele.startswith('('):
-                ele = ele.replace('(', '[')
-                ele = ele.replace(')', ']')
             new_args.append(ele)
 
         return new_args
@@ -225,9 +216,6 @@ class BaseMatcher(object):
         for node in kwargs:
             k = node.arg
             v = astor.to_source(node.value).strip('\n')
-            if ',' in v and v.startswith('('):
-                v = v.replace('(', '[')
-                v = v.replace(')', ']')
             new_kwargs[k] = v
 
         return new_kwargs
