@@ -1417,3 +1417,157 @@ class WhereMatcher(BaseMatcher):
             return code
         else:
             return GenericMatcher.generate_code(self, kwargs)
+
+
+class TensorIndexCopyMatcher(BaseMatcher):
+    def generate_code(self, kwargs):
+
+
+        if kwargs['dim'][1:-1].isdigit() and int(kwargs['dim'][1:-1])==0:
+            code = '{}.scatter_({}, {})'.format(self.paddleClass, kwargs['index'], kwargs['tensor'])
+            return code
+
+
+        API_TEMPLATE = textwrap.dedent(
+            '''
+            times, temp_shape, temp_index = paddle.prod(paddle.to_tensor({}.shape[:{}])), {}.shape, {}
+            {}, new_t = {}.reshape([-1] + temp_shape[{}+1:]), {}.reshape([-1] + temp_shape[{}+1:])
+            for i in range(1, times):
+                temp_index= paddle.concat([temp_index, index+len(index)*i])
+            {}.scatter_(temp_index, new_t).reshape(temp_shape)
+            '''
+        )
+                # kwargs['dim'], kwargs['index'], 
+        code = API_TEMPLATE.format(self.paddleClass, kwargs['dim'], self.paddleClass, kwargs['index'], 
+            self.paddleClass, self.paddleClass, kwargs['dim'], kwargs['tensor'], kwargs['dim'], self.paddleClass)
+
+        return code
+
+
+class InstanceNorm3DMatcher(BaseMatcher):
+    def generate_code(self, kwargs):
+        if 'eps' not in kwargs:
+            epsilon = 1e-5
+        else:
+            epsilon = kwargs['eps']
+
+        if 'momentum' in kwargs:
+            momentum = kwargs['momentum']
+        else:
+            momentum = 0.1
+
+        if 'affine' in kwargs and 'False' in kwargs['affine']:
+            API_TEMPLACE = textwrap.dedent(
+                '''
+                paddle.nn.InstanceNorm3D(num_features={},
+                                    momentum=1-{},
+                                    epsilon={},
+                                    weight_attr=paddle.ParamAttr(learning_rate=0.0),
+                                    bias_attr=paddle.ParamAttr(learning_rate=0.0))
+                '''
+            )
+        else:
+            API_TEMPLACE = textwrap.dedent(
+                '''
+                paddle.nn.InstanceNorm3D(num_features={},
+                                    momentum=1-{},
+                                    epsilon={},
+                                    weight_attr=None,
+                                    bias_attr=None)
+                '''
+            )
+        code = API_TEMPLACE.format(kwargs['num_features'], momentum, epsilon)
+        return code
+
+
+class BCEWithLogitsLossMatcher(BaseMatcher):
+    def generate_code(self, kwargs):
+        if 'size_average' in kwargs:
+            size_average = kwargs.pop('size_average')
+            if 'True' in size_average:
+                size_average = True
+            elif 'False' in size_average:
+                size_average = False
+            else:
+                size_average = None
+        else:
+            size_average = None
+
+        if 'reduce' in kwargs:
+            reduce = kwargs.pop('reduce')
+            if 'True' in reduce:
+                reduce = True
+            elif 'False' in reduce:
+                reduce = False
+            else:
+                reduce = None
+        else:
+            reduce = None
+
+        if size_average is not None or reduce is not None:
+            if size_average is None:
+                size_average = True
+            if reduce is None:
+                reduce = True
+
+            if size_average and reduce:
+                reduction = '"""mean"""'
+            elif reduce:
+                reduction = '"""sum"""'
+            else:
+                reduction = '"""none"""'
+
+            kwargs['reduction'] = reduction
+
+        API_TEMPLACE = textwrap.dedent(
+            '''
+            paddle.nn.BCEWithLogitsLoss({})
+            '''
+        )
+        code = API_TEMPLACE.format(self.kwargs_to_str(kwargs))
+        return code
+
+
+class GeneratorMatcher(BaseMatcher):
+    def generate_code(self, kwargs):
+
+        if not kwargs:
+            code = 'paddle.fluid.core.default_cpu_generator()'
+        elif 'device' in kwargs:
+            if kwargs['device'] == '"""cuda"""':
+                code = textwrap.dedent(
+                    '''
+                    device = paddle.device.get_device()
+                    paddle.fluid.core.default_cuda_generator(int(device[-1]))
+                    '''
+                )
+            elif kwargs['device'] == '"""mps"""':
+                # paddle not suppor mps, but support xpu
+                return None
+
+            else:
+                code = 'paddle.fluid.core.default_cpu_generator()'
+
+        return code
+
+
+class TorchUtilDataBatchSampler(BaseMatcher):
+    def generate_code(self, kwargs):
+        API_TEMPLATE = textwrap.dedent(
+            '''        
+            paddle.io.BatchSampler(sampler = {} if isinstance({}, paddle.io.Sampler) else paddle.io.SequenceSampler({}), batch_size = {}, drop_last = {})
+             '''
+        )
+
+        code = API_TEMPLATE.format(kwargs['sampler'], kwargs['sampler'], kwargs['sampler'], kwargs["batch_size"], kwargs["drop_last"])
+
+        return code
+
+
+class SizeMatcher(BaseMatcher):
+    def get_paddle_nodes(self, args, kwargs):
+
+        code = 'list({})'.format(astor.to_source(args[0]).strip('\n'))
+
+        node = ast.parse(code.strip('\n')).body
+        return node
