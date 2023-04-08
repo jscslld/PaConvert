@@ -5513,15 +5513,14 @@
 
   "torch.Tensor.norm": {
     "Matcher": "GenericMatcher",
-    "paddle_api": "paddle.Tensor.nansum",
+    "paddle_api": "paddle.Tensor.norm",
     "args_list" : [
       "p",
       "dim",
       "keepdim",
       "dtype"],
       "kwargs_change": {
-        "dim":"axis",
-        "dtype": ""
+        "dim":"axis"
       }
   }, 
 
@@ -6050,14 +6049,7 @@
   "torch.Tensor.symeig": {}, 
   "torch.Tensor.t_": {}, 
   "torch.Tensor.tensor_split": {}, 
-  "torch.Tensor.to": {
-    "Matcher": "TensorToMatcher",
-    "paddle_api": "paddle.Tensor.cast",
-    "args_list": [
-      "dtype",
-      "non_blocking",
-      "memory_format"]
-  }, 
+  "torch.Tensor.to": {},
   "torch.Tensor.to_mkldnn": {}, 
   "torch.Tensor.take": {}, 
   "torch.Tensor.tan_": {}, 
@@ -6269,7 +6261,6 @@
   "torch.Tensor.index_add": {},
   "torch.Tensor.index_copy_": {
     "Matcher": "TensorIndexCopyMatcher",
-    "paddle_api": "paddle.Tensor.scatter_",
     "args_list": [
       "dim",
       "index",
@@ -7148,7 +7139,6 @@
 
   "torch.nn.InstanceNorm3d": {
     "Matcher": "InstanceNorm3DMatcher",
-    "paddle_api": "paddle.nn.InstanceNorm3D",
     "args_list": [
       "num_features",
       "eps",
@@ -7161,7 +7151,6 @@
 
   "torch.nn.BCEWithLogitsLoss": {
     "Matcher": "BCEWithLogitsLossMatcher",
-    "paddle_api": "paddle.nn.BCEWithLogitsLoss",
     "args_list": [
       "weight",
       "size_average",
@@ -7172,7 +7161,6 @@
 
   "torch.utils.data.BatchSampler": {
     "Matcher": "TorchUtilDataBatchSampler",
-    "paddle_api": "paddle.io.BatchSampler",
     "args_list": [
       "sampler",
       "batch_size",
@@ -7181,24 +7169,13 @@
 
   "torch.Generator": {
     "Matcher": "GeneratorMatcher",
-    "paddle_api": "paddle.fluid.core.default_cpu_generator",
     "args_list": [
       "device"]
   },
 
-  "torch.cdist": {
-    "Matcher": "CdistMatcher",
-    "paddle_api": "paddle.dist",
-    "args_list": [
-      "x1",
-      "x2",
-      "p",
-      "compute_mode"]
-  },
-
   "torch.Size": {
     "Matcher": "SizeMatcher",
-    "paddle_api": "paddle.shape"
+    "args_lsit": []
   }
 
 }

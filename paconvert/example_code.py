@@ -180,7 +180,7 @@ shape = torch.abs(x).shape
 
 torch.abs(x).shape
 
-# different kinds of torch.Tensor method 
+# different kinds of torch.Tensor method
 z = (torch.triu(torch.ones(sz, sz)) == 1).abs()
 
 (x + y).abs()
@@ -214,7 +214,7 @@ torch.min(image, label)
 
 torch.max(max_exp_avg_sq, exp_avg_sq, out=max_exp_avg_sq)
 
-# torch.rand 
+# torch.rand
 m = 2
 n = 3
 
@@ -582,7 +582,7 @@ torch.nn.CrossEntropyLoss(reduction="none")
 a = torch.tensor(torch.tensor([2, 3, 4]), dtype=torch.float32, device=torch.device('cuda'), requires_grad=True)
 print('[torch.tensor case-1]: ', a.shape, a.dtype)
 
-## Case2: 
+## Case2:
 flag = True
 a = torch.tensor(torch.tensor([2, 3, 4]), dtype=torch.float32, device=torch.device('cuda'), requires_grad=flag)
 print('[torch.tensor case-2]: ', a.shape, a.dtype)
@@ -592,39 +592,39 @@ print('[torch.tensor case-2]: ', a.shape, a.dtype)
 print('[torch.cuda.is_available case-1]: ', torch.cuda.is_available())
 
 # torch.Tensor
-## Case1: 
+## Case1:
 def a(x: torch.Tensor):
     pass
 
-## Case2: 
+## Case2:
 a = torch.Tensor(2, 3)
 print('[torch.Tensor case-2]: ', a.shape, a.dtype)
 
 # torch.LongTensor
-## Case1: 
+## Case1:
 def a(x: torch.LongTensor):
     pass
 
-## Case2: 
+## Case2:
 a = torch.LongTensor(2, 3)
 print('[LongTensor case-2]: ', a.shape, a.dtype)
 
 # torch.IntTensor
-## Case1: 
+## Case1:
 def a(x: torch.IntTensor):
     pass
 
-## Case2: 
+## Case2:
 a = torch.IntTensor(2, 3, 6)
 print('[IntTensor case-2]: ', a.shape, a.dtype)
 
 
 # torch.FloatTensor
-## Case1: 
+## Case1:
 def a(x: torch.FloatTensor):
     pass
 
-## Case2: 
+## Case2:
 a = torch.FloatTensor(2, 3, 6)
 print('[FloatTensor case-2]: ', a.shape, a.dtype)
 
@@ -782,8 +782,40 @@ x.new_full([2, 3], 2., requires_grad=True, pin_memory=False)
 x.new_full([2, 3], 2., dtype=torch.float32, requires_grad=True, pin_memory=True)
 
 
+import torch
+# torch.Generator()
+## Case1: default cpu
+g_cpu = torch.Generator()
+print('[torch.Generator() case-1]: ', g_cpu)
+
+## Case2: cpu
+g_cpu = torch.Generator(device='cpu')
+print('[torch.Generator() case-2]: ', g_cpu)
+
+## Case3: cpu
+g_cpu = torch.Generator('cpu')
+print('[torch.Generator() case-3]: ', g_cpu)
+
+# case 1:
+print(torch.Size([2, 8, 64, 64]))
+
+# # case 2:
+assert torch.randn(6, 5, 7).size() == torch.Size([6, 5, 7])
+
+# # case 3:
+out = torch.Size([6, 5, 7])
+shape_nchw = torch.Size([6, 5, 7])
+assert out == torch.Size(shape_nchw)
+
+# case 4:
+print(torch.Size([1]))
+
+# case 5
+shape = torch.Size([1])
+
 # torch.Tensor.index_copy_
 ## case 1: index axis = 0
+import torch
 x = torch.zeros(5, 3)
 t = torch.tensor([[1, 2, 3], [4, 5, 6], [7, 8, 9]], dtype=torch.float)
 index = torch.tensor([0, 4, 2])
@@ -823,251 +855,133 @@ index = torch.tensor([0, 12, 2, 1])
 y = x.index_copy_(0, index, t)
 print('[torch.Tensor.index_copy_ case-5]: ', y)
 
-# torch.Tensor.requires_grad
-## Case1:
-x = torch.tensor([[1., -1.], [1., 1.]], requires_grad=True)
-print('[torch.Tensor.requires_grad case-1]: ', x.requires_grad)
+import torch
+data = torch.tensor([23.,32., 43.])
+# case 1:
+if not data.requires_grad:
+	print(1)
 
-# torch.Tensor.to
-## Case1:
-tensor = torch.randn(2, 2)
-print('[torch.Tensor.to case-1]: ', tensor.to(torch.float64))
+# case 2:
+print(data.requires_grad)
 
-## Case2:
-tensor = torch.randn(2, 2)
-print('[torch.Tensor.to case-2]: ', tensor.to(tensor.dtype))
+# case 3:
+data.requires_grad = False
 
-## Case3:
-tensor = torch.randn(2, 2)
-print('[torch.Tensor.to case-3]: ', tensor.to(torch.float32))
+# case 4:
+requires_grad= data.requires_grad
 
-## Case4:
-tensor = torch.randn(2, 2)
-print('[torch.Tensor.to case-4]: ', tensor.to(torch.float16))
+# # case 5
+data = torch.tensor([23.,32., 43.], requires_grad=data.requires_grad)
 
-# Case5:
-tensor = torch.randn(2, 2)
-print('[torch.Tensor.to case-5]: ', tensor.to(torch.int32))
+# case 6
+print(data.requires_grad == False)
 
+# case 7:
+print(not data.requires_grad)
 
-# torch.utils.data.BatchSampler
-## Case1: must 3 parameters 
-x = torch.utils.data.BatchSampler(bs, batch_size=3, drop_last=False)
-print('[torch.utils.data.BatchSampler case-1]: ', list(x))
+# case 8:
+print('{} , {}'.format("1", str(data.requires_grad)))
 
-# torch.Generator()
-## Case1: default cpu
-g_cpu = torch.Generator()
-print('[torch.Generator() case-1]: ', g_cpu)
+# case 9:
+def test():
+    return True
+data.requires_grad = test()
 
-## Case2: cpu
-g_cpu = torch.Generator(device='cpu')
-print('[torch.Generator() case-2]: ', g_cpu)
+# case 10:
+z = (True, False, True)
+a, data.requires_grad, c = z
+print(data.requires_grad)
 
-## Case3: cpu
-g_cpu = torch.Generator('cpu')
-print('[torch.Generator() case-3]: ', g_cpu)
-
-## Case4: cuda
-g_cuda = torch.Generator('cuda')
-print('[torch.Generator() case-4]: ', g_cuda)
-
-## Case5: cuda
-g_cuda = torch.Generator(device='cuda')
-print('[torch.Generator() case-5]: ', g_cuda)
-
-# torch.cdist
-## Case1: 2d data and p<25
-a = torch.tensor([[0.9041,  0.0196], [-0.3108, -2.4423], [-0.4821,  1.059]])
-b = torch.tensor([[-2.1763, -0.4713], [-0.6986,  1.3702]])
-c = torch.cdist(a, b, p=2)
-print('[torch.cdist case-1]: ', c)
-
-## Case2: 3d data and p<25 
-a = torch.tensor([
-    [[0.9041,  0.0196], [-0.3108, -2.4423], [-0.4821,  1.059]],
-    [[0.9041,  0.0196], [-0.3108, -2.4423], [-0.4821,  1.059]]])
-b = torch.tensor([
-    [-2.1763, -0.4713], [-0.6986,  1.3702],
-    [-2.1763, -0.4713], [-0.6986,  1.3702]])
-c = torch.cdist(a, b, p=2)
-print('[torch.cdist case-2]: ', c)
-
-## Case3: 3d and 2d data 
-a = torch.tensor([
-    [[0.9041,  0.0196], [-0.3108, -2.4423], [-0.4821,  1.059]],
-    [[0.9041,  0.0196], [-0.3108, -2.4423], [-0.4821,  1.059]]])
-b = torch.tensor([[-2.1763, -0.4713], [-0.6986,  1.3702]])
-c = torch.cdist(b, a, p=2)
-print('[torch.cdist case-3]: ', c)
-
-## Case4: 2d and 3d data 
-a = torch.tensor([[0.9041,  0.0196], [-0.3108, -2.4423], [-0.4821,  1.059]])
-b = torch.tensor([
-    [[-2.1763, -0.4713], [-0.6986,  1.3702]],
-    [[-2.1763, -0.4713], [-0.6986,  1.3702]]])
-c = torch.cdist(a, b, p=2)
-print('[torch.cdist case-4]: ', c)
-
-# Case5: compute_mode parameteruse P>25 not influents
-a = torch.tensor([[[0.9041,  0.0196], [-0.3108, -2.4423], [-0.4821,  1.059],
-    [0.9041,  0.0196], [-0.3108, -2.4423], [-0.4821,  1.059],
-    [0.9041,  0.0196], [-0.3108, -2.4423], [-0.4821,  1.059],
-    [0.9041,  0.0196], [-0.3108, -2.4423], [-0.4821,  1.059],
-    [0.9041,  0.0196], [-0.3108, -2.4423], [-0.4821,  1.059],
-    [0.9041,  0.0196], [-0.3108, -2.4423], [-0.4821,  1.059],
-    [0.9041,  0.0196], [-0.3108, -2.4423], [-0.4821,  1.059],
-    [0.9041,  0.0196], [-0.3108, -2.4423], [-0.4821,  1.059],
-    [0.9041,  0.0196], [-0.3108, -2.4423], [-0.4821,  1.059],
-    [0.9041,  0.0196], [-0.3108, -2.4423], [-0.4821,  1.059],
-    [0.9041,  0.0196], [-0.3108, -2.4423], [-0.4821,  1.059]]])
-b = torch.tensor([[-2.1763, -0.4713], [-0.6986,  1.3702]])
-c = torch.cdist(a, b, p=2,compute_mode='use_mm_for_euclid_dist_if_necessary')
-print('[torch.cdist case-5]: ', c)
-
-## Case4: 2d and 3d data 
-a = torch.tensor([[0.9041,  0.0196], [-0.3108, -2.4423], [-0.4821,  1.059]])
-b = torch.tensor([
-    [[-2.1763, -0.4713], [-0.6986,  1.3702]],
-    [[-2.1763, -0.4713], [-0.6986,  1.3702]]])
-c = torch.cdist(a, b, p=2)
-print('[torch.cdist case-4]: ', c)
-
-# Case5: compute_mode parameteruse P>25 not influents
-a = torch.tensor([[[0.9041,  0.0196], [-0.3108, -2.4423], [-0.4821,  1.059],
-    [0.9041,  0.0196], [-0.3108, -2.4423], [-0.4821,  1.059],
-    [0.9041,  0.0196], [-0.3108, -2.4423], [-0.4821,  1.059],
-    [0.9041,  0.0196], [-0.3108, -2.4423], [-0.4821,  1.059],
-    [0.9041,  0.0196], [-0.3108, -2.4423], [-0.4821,  1.059],
-    [0.9041,  0.0196], [-0.3108, -2.4423], [-0.4821,  1.059],
-    [0.9041,  0.0196], [-0.3108, -2.4423], [-0.4821,  1.059],
-    [0.9041,  0.0196], [-0.3108, -2.4423], [-0.4821,  1.059],
-    [0.9041,  0.0196], [-0.3108, -2.4423], [-0.4821,  1.059],
-    [0.9041,  0.0196], [-0.3108, -2.4423], [-0.4821,  1.059],
-    [0.9041,  0.0196], [-0.3108, -2.4423], [-0.4821,  1.059]]])
-b = torch.tensor([[-2.1763, -0.4713], [-0.6986,  1.3702]])
-c = torch.cdist(a, b, p=2,compute_mode='use_mm_for_euclid_dist_if_necessary')
-print('[torch.cdist case-5]: ', c)
-
-# torch.nn.InstanceNorm3d
-## Case1: 5d input data With Learnable Parameters
-m = torch.nn.InstanceNorm3d(2, affine=True)
-input = b = torch.tensor([[[
-    [[-2.1763, -0.4713], [-0.6986,  1.3702]],
-    [[-2.1763, -0.4713], [-0.6986,  1.3702]],
-    [[-2.1763, -0.4713], [-0.6986,  1.3702]],
-    [[-2.1763, -0.4713], [-0.6986,  1.3702]]],
-    [[[-2.1763, -0.4713], [-0.6986,  1.3702]],
-    [[-2.1763, -0.4713], [-0.6986,  1.3702]],
-    [[-2.1763, -0.4713], [-0.6986,  1.3702]],
-    [[-2.1763, -0.4713], [-0.6986,  1.3702]]]]])
+import torch.nn as nn
+import torch
+# case 1
+m = nn.InstanceNorm3d(100)
+input = torch.randn(20, 100, 35, 45, 10)
 output = m(input)
 print('[torch.nn.InstanceNorm3d case-1]: ', output)
 
-# torch.nn.InstanceNorm3d
-## Case2: 5d input data With not Learnable Parameters
-m = torch.nn.InstanceNorm3d(2, affine=False)
-input = b = torch.tensor([[[
-    [[-2.1763, -0.4713], [-0.6986,  1.3702]],
-    [[-2.1763, -0.4713], [-0.6986,  1.3702]],
-    [[-2.1763, -0.4713], [-0.6986,  1.3702]],
-    [[-2.1763, -0.4713], [-0.6986,  1.3702]]],
-    [[[-2.1763, -0.4713], [-0.6986,  1.3702]],
-    [[-2.1763, -0.4713], [-0.6986,  1.3702]],
-    [[-2.1763, -0.4713], [-0.6986,  1.3702]],
-    [[-2.1763, -0.4713], [-0.6986,  1.3702]]]]])
+# case 2
+m = nn.InstanceNorm3d(100, affine=True)
+input = torch.randn(20, 100, 35, 45, 10)
 output = m(input)
 print('[torch.nn.InstanceNorm3d case-2]: ', output)
 
-## Case3: 4d input data With Learnable Parameters
-# for 4d data api can be translated but m(input) can't accept 4d data, then user deal with it 
-m = torch.nn.InstanceNorm3d(2, affine=True)
-input = b = torch.tensor([[
-    [[-2.1763, -0.4713], [-0.6986,  1.3702]],
-    [[-2.1763, -0.4713], [-0.6986,  1.3702]],
-    [[-2.1763, -0.4713], [-0.6986,  1.3702]],
-    [[-2.1763, -0.4713], [-0.6986,  1.3702]]],
-    [[[-2.1763, -0.4713], [-0.6986,  1.3702]],
-    [[-2.1763, -0.4713], [-0.6986,  1.3702]],
-    [[-2.1763, -0.4713], [-0.6986,  1.3702]],
-    [[-2.1763, -0.4713], [-0.6986,  1.3702]]]])
-# output = m(input)
-print('[torch.nn.InstanceNorm3d case-3]: ', 'gg')
+# case 3
+m = nn.InstanceNorm3d(100, affine=False)
+input = torch.randn(20, 100, 35, 45, 10)
+output = m(input)
+print('[torch.nn.InstanceNorm3d case-3]: ', output)
 
-# torch.nn.InstanceNorm3d
-## Case4: 4d input data With not Learnable Parameters
-# for 4d data api can be translated but m(input) can't accept 4d data, then user deal with it 
-m = torch.nn.InstanceNorm3d(2, affine=False)
-input = b = torch.tensor([[
-    [[-2.1763, -0.4713], [-0.6986,  1.3702]],
-    [[-2.1763, -0.4713], [-0.6986,  1.3702]],
-    [[-2.1763, -0.4713], [-0.6986,  1.3702]],
-    [[-2.1763, -0.4713], [-0.6986,  1.3702]]],
-    [[[-2.1763, -0.4713], [-0.6986,  1.3702]],
-    [[-2.1763, -0.4713], [-0.6986,  1.3702]],
-    [[-2.1763, -0.4713], [-0.6986,  1.3702]],
-    [[-2.1763, -0.4713], [-0.6986,  1.3702]]]])
-# output = m(input)
-print('[torch.nn.InstanceNorm3d case-4]: ', 'gg')
-
-## Case5: 5d input data With Learnable Parameters 
-m = torch.nn.InstanceNorm3d(2, eps=1e-5, momentum=0.1, affine=True, track_running_stats=True)
-input = b = torch.tensor([[[
-    [[-2.1763, -0.4713], [-0.6986,  1.3702]],
-    [[-2.1763, -0.4713], [-0.6986,  1.3702]],
-    [[-2.1763, -0.4713], [-0.6986,  1.3702]],
-    [[-2.1763, -0.4713], [-0.6986,  1.3702]]],
-    [[[-2.1763, -0.4713], [-0.6986,  1.3702]],
-    [[-2.1763, -0.4713], [-0.6986,  1.3702]],
-    [[-2.1763, -0.4713], [-0.6986,  1.3702]],
-    [[-2.1763, -0.4713], [-0.6986,  1.3702]]]]])
+# case 4
+m = nn.InstanceNorm3d(100, affine=True, momentum=0.1)
+input = torch.randn(20, 100, 35, 45, 10)
 output = m(input)
 print('[torch.nn.InstanceNorm3d case-4]: ', output)
 
-# torch.nn.BCEWithLogitsLoss
-## Case1: torch demo
-target = torch.ones([10, 64], dtype=torch.float32)
-output = torch.full([10, 64], 1.5)  
-pos_weight = torch.ones([64])
-criterion = torch.nn.BCEWithLogitsLoss(pos_weight=pos_weight)
-output = criterion(output, target)  
+# case 5
+m = nn.InstanceNorm3d(100, affine=False, momentum=0.1)
+input = torch.randn(20, 100, 35, 45, 10)
+output = m(input)
+print('[torch.nn.InstanceNorm3d case-5]: ', output)
+
+import torch
+import torch.nn as nn
+# case 1
+loss = torch.nn.BCEWithLogitsLoss(reduction='none')
+input = torch.tensor([1.,0.7,0.2], requires_grad=True)
+target = torch.tensor([1.,0., 0.])
+output = loss(input, target)
 print('[torch.nn.BCEWithLogitsLoss case-1]: ', output)
 
-# torch.nn.BCEWithLogitsLoss
-## Case2: 
-target = torch.ones([10, 64], dtype=torch.float32)
-output = torch.full([10, 64], 1.5)  
-pos_weight = torch.ones([64])
-criterion = torch.nn.BCEWithLogitsLoss(pos_weight=pos_weight,size_average=True)
-output = criterion(output, target)  
+# case 2
+loss = nn.BCEWithLogitsLoss(weight=torch.tensor([1.0,0.2, 0.2]), reduction='none')
+input = torch.tensor([1.,0.7,0.2], requires_grad=True)
+target = torch.tensor([1.,0., 0.])
+output = loss(input, target)
 print('[torch.nn.BCEWithLogitsLoss case-2]: ', output)
 
-# torch.nn.BCEWithLogitsLoss
-## Case1: 
-target = torch.ones([10, 64], dtype=torch.float32)
-output = torch.full([10, 64], 1.5)  
-pos_weight = torch.ones([64])
-criterion = torch.nn.BCEWithLogitsLoss(reduce=False, size_average=False, reduction='none')
-output = criterion(output, target)  
+# case 3
+loss= nn.BCEWithLogitsLoss(pos_weight = torch.ones([3]))
+input = torch.tensor([1.,0.7,0.2], requires_grad=True)
+target = torch.tensor([1.,0., 0.])
+output = loss(input, target)
 print('[torch.nn.BCEWithLogitsLoss case-3]: ', output)
 
-# torch.nn.BCEWithLogitsLoss
-## Case1: 
-target = torch.ones([10, 64], dtype=torch.float32)
-output = torch.full([10, 64], 1.5)  
-pos_weight = torch.ones([64])
-criterion = torch.nn.BCEWithLogitsLoss(reduction='mean')
-output = criterion(output, target)  
+# case 4
+loss = nn.BCEWithLogitsLoss(size_average=True)
+input = torch.tensor([1.,0.7,0.2], requires_grad=True)
+target = torch.tensor([1.,0., 0.])
+output = loss(input, target)
 print('[torch.nn.BCEWithLogitsLoss case-4]: ', output)
 
-# torch.nn.BCEWithLogitsLoss
-## Case1: 
-target = torch.ones([10, 64], dtype=torch.float32)
-output = torch.full([10, 64], 1.5)  
-pos_weight = torch.ones([64])
-criterion = torch.nn.BCEWithLogitsLoss(reduction='sum')
-output = criterion(output, target)  
+# case 5
+loss = nn.BCEWithLogitsLoss()
+input = torch.tensor([1.,0.7,0.2], requires_grad=True)
+target = torch.tensor([1.,0., 0.])
+output = loss(input, target)
 print('[torch.nn.BCEWithLogitsLoss case-5]: ', output)
 
+import torch
+import torch.nn as nn
+from torch.utils.data import BatchSampler
+# case 1
+o = list(BatchSampler(range(10), batch_size=3, drop_last=True))
+print('[torch.utils.data.BatchSampler case-1]: ', o)
 
+# case 2
+o = list(BatchSampler(range(10), batch_size=3, drop_last=False))
+print('[torch.utils.data.BatchSampler case-2]: ', o)
 
+# case 3
+batch_sampler_train = torch.utils.data.BatchSampler(range(10), 2, drop_last=True)
+print('[torch.utils.data.BatchSampler case-3]: ', list(batch_sampler_train))
+
+# case 4
+batch_size = 4
+batch_sampler_train = torch.utils.data.BatchSampler(range(10), batch_size, drop_last=False)
+print('[torch.utils.data.BatchSampler case-4]: ', list(batch_sampler_train))
+
+# case 5
+batch_size = 4
+batch_sampler_train = torch.utils.data.BatchSampler(sampler=range(10), batch_size=batch_size, drop_last=False)
+print('[torch.utils.data.BatchSampler case-5]: ', list(batch_sampler_train))
