@@ -1462,17 +1462,7 @@ class InstanceNorm3DMatcher(BaseMatcher):
         else:
             momentum = 0.1
 
-        if 'affine' in kwargs and 'False' in kwargs['affine']:
-            API_TEMPLACE = textwrap.dedent(
-                '''
-                paddle.nn.InstanceNorm3D(num_features={},
-                                    momentum=1-{},
-                                    epsilon={},
-                                    weight_attr=paddle.ParamAttr(learning_rate=0.0),
-                                    bias_attr=paddle.ParamAttr(learning_rate=0.0))
-                '''
-            )
-        else:
+        if 'affine' in kwargs and 'True' in kwargs['affine']:
             API_TEMPLACE = textwrap.dedent(
                 '''
                 paddle.nn.InstanceNorm3D(num_features={},
@@ -1482,6 +1472,17 @@ class InstanceNorm3DMatcher(BaseMatcher):
                                     bias_attr=None)
                 '''
             )
+        else:
+            API_TEMPLACE = textwrap.dedent(
+                '''
+                paddle.nn.InstanceNorm3D(num_features={},
+                                    momentum=1-{},
+                                    epsilon={},
+                                    weight_attr=paddle.ParamAttr(learning_rate=0.0),
+                                    bias_attr=paddle.ParamAttr(learning_rate=0.0))
+                '''
+            )
+
         code = API_TEMPLACE.format(kwargs['num_features'], momentum, epsilon)
         return code
 
@@ -1600,13 +1601,15 @@ class TensorToMatcher(BaseMatcher):
                         dtype = {}
                     elif isinstance({}, str) and {} not in ['cpu', 'cuda', 'ipu', 'xpu']:
                         dtype = {}
+                    elif isinstance({}, paddle.Tensor):
+                        dtype = {}.dtype
                     else: 
                         dtype = {}.dtype
                     {}.cast(dtype)
                     '''
                 )
                 code = API_TEMPLACE.format(kwargs['x'], kwargs['x'],
-                                           kwargs['x'], kwargs['x'], kwargs['x'], self.paddleClass, self.paddleClass)
+                                           kwargs['x'], kwargs['x'], kwargs['x'], kwargs['x'], kwargs['x'], self.paddleClass, self.paddleClass)
             elif 'y' in kwargs and 'x' in kwargs:
                 API_TEMPLACE = textwrap.dedent(
                     '''
